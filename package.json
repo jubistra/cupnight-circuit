@@ -1,0 +1,18 @@
+{
+  "name": "cupnight-circuit",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "start": "turbo start"
+  },
+  "devDependencies": {
+    "turbo": "^1.12.0",
+    "typescript": "^5.3.0"
+  }
+}

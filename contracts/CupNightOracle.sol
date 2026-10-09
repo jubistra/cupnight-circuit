@@ -50,7 +50,7 @@ contract CupNightOracle is ERC721, Ownable {
     error WinnerAlreadySettled();
     error InvalidTournament();
     error EntryClosed();
-    error OnlyOracle()();
+    error OnlyOracle();
 
     // Hermes oracle will be set by admin
     address public oracle;
@@ -103,7 +103,9 @@ contract CupNightOracle is ERC721, Ownable {
         require(t.playerEntry[msg.sender] == 0, AlreadyJoined());
 
         // Transfer USDC to vault
-        uint256 actual = usdc.transferFrom(msg.sender, address(this), _entryAmount);
+        bool success = usdc.transferFrom(msg.sender, address(this), _entryAmount);
+        require(success, "USDC transfer failed");
+        uint256 actual = _entryAmount;
         
         t.playerEntry[msg.sender] = actual;
         t.playerList[t.currentPlayers] = msg.sender;
@@ -126,7 +128,7 @@ contract CupNightOracle is ERC721, Ownable {
     function confirmWinner(
         uint256 _tournamentId,
         address _winnerAddress,
-        uint256[] calldata _playerList
+        address[] calldata _playerList
     ) external onlyOracle {
         Tournament storage t = tournaments[_tournamentId];
 
@@ -147,7 +149,7 @@ contract CupNightOracle is ERC721, Ownable {
     }
 
     function releaseFunds(uint256 _tournamentId) external onlyOracle {
-        require(!tournaments[_tournamentId].isSettled(), "Already settled");
+        require(!tournaments[_tournamentId].isSettled, "Already settled");
         tournaments[_tournamentId].isSettled = true;
 
         uint256 amount = usdc.balanceOf(address(this)); // or per-player withdrawal
@@ -156,7 +158,7 @@ contract CupNightOracle is ERC721, Ownable {
     }
 
     // ─── Player Withdrawal (optional: claim back winnings) ──
-    function withdraw Winnings(uint256 _tournamentId) external {
+    function withdrawWinnings(uint256 _tournamentId) external {
         Tournament storage t = tournaments[_tournamentId];
         require(t.isSettled, "Tournament not concluded");
         require(t.winner == msg.sender, "Not winner");
